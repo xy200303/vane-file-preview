@@ -59,6 +59,7 @@ export default defineConfig(({ command, mode }) => {
       dts({
         processor: "ts",
         include: ["src/components/FilePreviewPlugin/**/*", "src/types/**/*"],
+        exclude: ["public/**/*"],
         outDirs: ["dist"],
         tsconfigPath: "./tsconfig.app.json",
         staticImport: true,
