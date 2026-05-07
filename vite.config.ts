@@ -8,7 +8,7 @@ const manualChunkGroups: Record<string, string[]> = {
   // PDF 相关
   pdf: ["pdfjs-dist", "react-pdf"],
   // Office 文档相关
-  office: ["xlsx", "mammoth", "docx-preview", "pptx-parser"],
+  office: ["xlsx", "mammoth", "docx-preview"],
   // 代码高亮相关
   syntax: ["highlight.js", "react-syntax-highlighter"],
   // Markdown 相关
@@ -56,7 +56,7 @@ const externalPackages = [
   "react-h5-audio-player",
   "papaparse",
   "docx-preview",
-  "pptx-parser",
+  "pptxviewjs",
   "@uiw/react-json-view",
   "rehype-katex",
   "rehype-highlight",

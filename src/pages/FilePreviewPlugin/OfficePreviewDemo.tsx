@@ -58,6 +58,13 @@ const officeFiles: FileInfo[] = [
     extension: ".pptx",
     url: "./sample.pptx",
   },
+  {
+    name: "答辩.pptx",
+    size: 34434637,
+    type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    extension: ".pptx",
+    url: "./答辩.pptx",
+  },
 ];
 
 export default function OfficePreviewDemo() {
