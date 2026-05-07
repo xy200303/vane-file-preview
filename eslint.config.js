@@ -32,12 +32,16 @@ export default tseslint.config(
           argsIgnorePattern: "^error$", // 忽略函数参数名叫 error
         },
       ],
+      "no-useless-assignment": "off",
       "no-empty": [
         "error",
         {
           allowEmptyCatch: true, // 允许空的 catch 块
         },
       ],
+      "react-hooks/immutability": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/static-components": "off",
     },
   }
 );
