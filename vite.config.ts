@@ -14,7 +14,7 @@ export default defineConfig(({ command, mode }) => {
   if (isLib) {
     plugins.push(
       dts({
-        include: ["src/components/FilePreviewPlugin/**/*"],
+        include: ["src/components/FilePreviewPlugin/**/*", "src/types/**/*"],
         outDir: "dist",
         // Windows 下 rollup 打包类型文件可能触发 EPERM（文件占用/权限），关闭以避免写入后清理目录失败
         rollupTypes: false,
@@ -68,6 +68,32 @@ export default defineConfig(({ command, mode }) => {
                 objectShorthand: true,
                 symbols: true,
               },
+              manualChunks: {
+                // 核心库
+                core: ["react", "react-dom"],
+                // PDF 相关
+                pdf: ["pdfjs-dist", "react-pdf"],
+                // Office 文档相关
+                office: ["xlsx", "mammoth", "docx-preview", "pptx-parser"],
+                // 代码高亮相关
+                syntax: ["highlight.js", "react-syntax-highlighter"],
+                // Markdown 相关
+                markdown: [
+                  "react-markdown",
+                  "rehype-katex",
+                  "rehype-highlight",
+                  "remark-gfm",
+                  "remark-math",
+                ],
+                // 媒体相关
+                media: ["react-player", "react-h5-audio-player"],
+                // 数据解析相关
+                data: ["papaparse", "jszip"],
+                // 电子书相关
+                epub: ["react-reader"],
+                // JSON 相关
+                json: ["@uiw/react-json-view"],
+              },
             },
             {
               format: "umd",
@@ -78,6 +104,20 @@ export default defineConfig(({ command, mode }) => {
                 react: "React",
                 "react-dom": "ReactDOM",
                 "react-router-dom": "ReactRouterDOM",
+                "react-syntax-highlighter": "reactSyntaxHighlighter",
+                "react-markdown": "ReactMarkdown",
+                "rehype-highlight": "rehypeHighlight",
+                "rehype-katex": "rehypeKatex",
+                "rehype-raw": "rehypeRaw",
+                "remark-breaks": "remarkBreaks",
+                "remark-gfm": "remarkGfm",
+                "remark-math": "remarkMath",
+                jszip: "JSZip",
+                "docx-preview": "docxPreview",
+                xlsx: "XLSX",
+                "react-reader": "reactReader",
+                papaparse: "Papa",
+                "@uiw/react-json-view": "JsonView",
               },
             },
           ],
@@ -109,33 +149,6 @@ export default defineConfig(({ command, mode }) => {
             "remark-math",
             "remark-breaks",
           ],
-          // 代码分割配置
-          manualChunks: {
-            // 核心库
-            core: ["react", "react-dom"],
-            // PDF 相关
-            pdf: ["pdfjs-dist", "react-pdf"],
-            // Office 文档相关
-            office: ["xlsx", "mammoth", "docx-preview", "pptx-parser"],
-            // 代码高亮相关
-            syntax: ["highlight.js", "react-syntax-highlighter"],
-            // Markdown 相关
-            markdown: [
-              "react-markdown",
-              "rehype-katex",
-              "rehype-highlight",
-              "remark-gfm",
-              "remark-math",
-            ],
-            // 媒体相关
-            media: ["react-player", "react-h5-audio-player"],
-            // 数据解析相关
-            data: ["papaparse", "jszip"],
-            // 电子书相关
-            epub: ["react-reader"],
-            // JSON 相关
-            json: ["@uiw/react-json-view"],
-          },
         },
       },
     };

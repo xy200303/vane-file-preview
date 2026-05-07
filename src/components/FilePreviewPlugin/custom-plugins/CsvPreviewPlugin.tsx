@@ -70,7 +70,7 @@ const CsvPreviewComponent: React.FC<{
           );
         }
 
-        let text = await response.text();
+        const text = await response.text();
         console.log("📄 文件内容长度:", text.length);
 
         // 自动检测编码

@@ -43,24 +43,27 @@ const createDynamicPreview = async (fileType: string) => {
   let plugins = [];
 
   switch (fileType) {
-    case "image":
+    case "image": {
       const { createImagePreviewPlugin } = await import(
         "vane-file-preview/plugins"
       );
       plugins = [createImagePreviewPlugin()];
       break;
-    case "pdf":
+    }
+    case "pdf": {
       const { createPdfPreviewPlugin } = await import(
         "vane-file-preview/plugins"
       );
       plugins = [createPdfPreviewPlugin()];
       break;
-    case "code":
+    }
+    case "code": {
       const { createCodePreviewPlugin } = await import(
         "vane-file-preview/plugins"
       );
       plugins = [createCodePreviewPlugin()];
       break;
+    }
     // ... 其他文件类型
   }
 

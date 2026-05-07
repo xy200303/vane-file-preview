@@ -128,7 +128,7 @@ export function createPluginManager(): PluginManager {
       const hook = plugin.hooks[hookName];
       if (!hook) continue;
       try {
-        // @ts-ignore dynamic dispatch
+        // @ts-expect-error dynamic dispatch across hook signatures
         const result = await Promise.resolve(hook(context, ...args));
 
         // 返回 false 表示中止后续执行

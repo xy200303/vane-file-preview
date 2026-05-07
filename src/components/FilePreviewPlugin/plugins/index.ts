@@ -52,5 +52,5 @@ export type { PptxPreviewPluginConfig } from "../custom-plugins/PptxPreviewPlugi
 export type { CsvPreviewConfig as CsvPreviewPluginConfig } from "../custom-plugins/CsvPreviewPlugin";
 export type { JsonPreviewConfig as JsonPreviewPluginConfig } from "../custom-plugins/JsonPreviewPlugin";
 export type { ZipPreviewPluginConfig } from "../custom-plugins/ZipPreviewPlugin";
-// EPUB 插件没有配置接口，使用空接口
-export type EpubPreviewPluginConfig = {};
+// EPUB 插件没有配置接口，使用显式空对象类型
+export type EpubPreviewPluginConfig = Record<string, never>;

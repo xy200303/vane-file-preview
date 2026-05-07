@@ -16,9 +16,7 @@ import { createIsolatedContainer } from "./styles/isolatedStyles";
 
 import JSZip from "jszip";
 
-export interface PptxPreviewPluginConfig {
-  // 暂时没有配置选项
-}
+export type PptxPreviewPluginConfig = Record<string, never>;
 
 interface SlideData {
   index: number;

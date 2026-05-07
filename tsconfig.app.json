@@ -13,6 +13,9 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "paths": {
+      "vane-file-preview": ["./src/components/FilePreviewPlugin/index.ts"]
+    },
 
     /* Linting */
     "strict": true,

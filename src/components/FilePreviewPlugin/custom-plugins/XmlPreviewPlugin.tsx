@@ -4,7 +4,7 @@ import {
   ToolbarContainer,
   ToolbarSeparator,
 } from "./shared/ToolbarComponents";
-import { FilePreviewPlugin, PluginContext } from "../../plugins/types";
+import { FilePreviewPlugin, PluginContext } from "../plugins/types";
 import React, { useEffect, useMemo, useState } from "react";
 
 import XmlViewer from "react-xml-viewer";
@@ -340,6 +340,17 @@ const XmlPreviewComponent: React.FC<{
 
       {/* XML 查看器 */}
       <div style={{ flex: 1, overflow: "auto", padding: "16px" }}>
+        <div
+          style={{
+            fontSize: "14px",
+            lineHeight: "1.5",
+            background: currentTheme === "dark" ? "#0d1117" : "#ffffff",
+            borderRadius: "6px",
+            border: `1px solid ${
+              currentTheme === "dark" ? "#30363d" : "#d0d7de"
+            }`,
+          }}
+        >
         <XmlViewer
           xml={xmlContent}
           collapsible={true}
@@ -371,16 +382,8 @@ const XmlPreviewComponent: React.FC<{
             // 行号颜色
             lineNumberColor: currentTheme === "dark" ? "#7d8590" : "#6a737d",
           }}
-          style={{
-            fontSize: "14px",
-            lineHeight: "1.5",
-            background: currentTheme === "dark" ? "#0d1117" : "#ffffff",
-            borderRadius: "6px",
-            border: `1px solid ${
-              currentTheme === "dark" ? "#30363d" : "#d0d7de"
-            }`,
-          }}
         />
+        </div>
       </div>
     </div>
   );
@@ -397,7 +400,7 @@ export function createXmlPreviewPlugin(
       render: (context: PluginContext) => (
         <XmlPreviewComponent context={context} config={config} />
       ),
-      toolbar: (context: PluginContext) => {
+      renderToolbar: (context: PluginContext) => {
         const { file } = context;
         const handleDownload = () => {
           const link = document.createElement("a");
