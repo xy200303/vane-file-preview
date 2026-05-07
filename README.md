@@ -5,7 +5,7 @@
 [![NPM Version](https://img.shields.io/badge/npm-v1.0.0-blue)](https://www.npmjs.com/package/vane-file-preview)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.x-blue)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.x-blue)](https://react.dev/)
 
 [在线演示](https://chinavane.netlify.app/) | [快速开始](#快速开始) | [插件列表](#插件列表) | [API 文档](#api-文档)
 
