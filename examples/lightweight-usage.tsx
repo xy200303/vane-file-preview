@@ -5,11 +5,11 @@
 
 // 方案1: 只使用核心 + 特定插件
 
-import { FilePreviewCore, withPlugins } from "vane-file-preview/core";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview/core";
 
-import { createCodePreviewPlugin } from "vane-file-preview/plugins";
-import { createImagePreviewPlugin } from "vane-file-preview/plugins";
-import { createPdfPreviewPlugin } from "vane-file-preview/plugins";
+import { createCodePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
+import { createImagePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
+import { createPdfPreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // 只包含图片预览功能，包体积 < 100KB
 const LightweightImagePreview = withPlugins(FilePreviewCore, [
@@ -37,7 +37,7 @@ const DocumentPreview = withPlugins(FilePreviewCore, [
 // 方案3: 动态导入插件（运行时按需加载）
 const createDynamicPreview = async (fileType: string) => {
   const { FilePreviewCore, withPlugins } = await import(
-    "vane-file-preview/core"
+    "@dev_xiaoyun/vane-file-preview/core"
   );
 
   let plugins = [];
@@ -45,21 +45,21 @@ const createDynamicPreview = async (fileType: string) => {
   switch (fileType) {
     case "image": {
       const { createImagePreviewPlugin } = await import(
-        "vane-file-preview/plugins"
+        "@dev_xiaoyun/vane-file-preview/plugins"
       );
       plugins = [createImagePreviewPlugin()];
       break;
     }
     case "pdf": {
       const { createPdfPreviewPlugin } = await import(
-        "vane-file-preview/plugins"
+        "@dev_xiaoyun/vane-file-preview/plugins"
       );
       plugins = [createPdfPreviewPlugin()];
       break;
     }
     case "code": {
       const { createCodePreviewPlugin } = await import(
-        "vane-file-preview/plugins"
+        "@dev_xiaoyun/vane-file-preview/plugins"
       );
       plugins = [createCodePreviewPlugin()];
       break;
@@ -71,3 +71,4 @@ const createDynamicPreview = async (fileType: string) => {
 };
 
 export { LightweightImagePreview, DocumentPreview, createDynamicPreview };
+

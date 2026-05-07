@@ -14,12 +14,12 @@
 
 ```bash
 # 只安装核心功能（< 50KB）
-npm install vane-file-preview
+npm install @dev_xiaoyun/vane-file-preview
 ```
 
 ```tsx
-import { FilePreviewCore, withPlugins } from "vane-file-preview/core";
-import { createImagePreviewPlugin } from "vane-file-preview/plugins";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview/core";
+import { createImagePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // 只包含图片预览，包体积 < 100KB
 const ImagePreview = withPlugins(FilePreviewCore, [createImagePreviewPlugin()]);
@@ -29,8 +29,8 @@ const ImagePreview = withPlugins(FilePreviewCore, [createImagePreviewPlugin()]);
 
 ```tsx
 // 只导入需要的插件
-import { createPdfPreviewPlugin } from "vane-file-preview/plugins";
-import { createCodePreviewPlugin } from "vane-file-preview/plugins";
+import { createPdfPreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
+import { createCodePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // 包体积根据导入的插件动态计算
 const DocumentPreview = withPlugins(FilePreviewCore, [
@@ -45,20 +45,20 @@ const DocumentPreview = withPlugins(FilePreviewCore, [
 // 运行时按需加载，初始包体积最小
 const createPreview = async (fileType: string) => {
   const { FilePreviewCore, withPlugins } = await import(
-    "vane-file-preview/core"
+    "@dev_xiaoyun/vane-file-preview/core"
   );
 
   let plugins = [];
   switch (fileType) {
     case "image":
       const { createImagePreviewPlugin } = await import(
-        "vane-file-preview/plugins"
+        "@dev_xiaoyun/vane-file-preview/plugins"
       );
       plugins = [createImagePreviewPlugin()];
       break;
     case "pdf":
       const { createPdfPreviewPlugin } = await import(
-        "vane-file-preview/plugins"
+        "@dev_xiaoyun/vane-file-preview/plugins"
       );
       plugins = [createPdfPreviewPlugin()];
       break;
@@ -83,30 +83,30 @@ const createPreview = async (fileType: string) => {
 
 ```tsx
 // 只需要图片预览
-import { FilePreviewCore, withPlugins } from "vane-file-preview/core";
-import { createImagePreviewPlugin } from "vane-file-preview/plugins";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview/core";
+import { createImagePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // 需要多种文件类型
-import { FilePreviewCore, withPlugins } from "vane-file-preview";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview";
 import {
   createImagePreviewPlugin,
   createPdfPreviewPlugin,
   createCodePreviewPlugin,
-} from "vane-file-preview/plugins";
+} from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // 需要所有功能
-import { FilePreviewCore, withPlugins } from "vane-file-preview";
-import * as plugins from "vane-file-preview/plugins";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview";
+import * as plugins from "@dev_xiaoyun/vane-file-preview/plugins";
 ```
 
 ### 2. 使用 Tree Shaking
 
 ```tsx
 // ✅ 推荐：按需导入
-import { createImagePreviewPlugin } from "vane-file-preview/plugins";
+import { createImagePreviewPlugin } from "@dev_xiaoyun/vane-file-preview/plugins";
 
 // ❌ 避免：全量导入
-import * as plugins from "vane-file-preview/plugins";
+import * as plugins from "@dev_xiaoyun/vane-file-preview/plugins";
 ```
 
 ### 3. 配置 Webpack/Vite
@@ -119,8 +119,8 @@ module.exports = {
       chunks: "all",
       cacheGroups: {
         vaneFilePreview: {
-          test: /[\\/]node_modules[\\/]vane-file-preview[\\/]/,
-          name: "vane-file-preview",
+          test: /[\\/]node_modules[\\/]@dev_xiaoyun[\\/]vane-file-preview[\\/]/,
+          name: "@dev_xiaoyun/vane-file-preview",
           chunks: "all",
         },
       },
@@ -135,18 +135,18 @@ module.exports = {
 
 ```tsx
 // 之前
-import { FilePreviewCore, withPlugins } from "vane-file-preview";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview";
 import {
   createImagePreviewPlugin,
   createPdfPreviewPlugin,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 之后
-import { FilePreviewCore, withPlugins } from "vane-file-preview/core";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview/core";
 import {
   createImagePreviewPlugin,
   createPdfPreviewPlugin,
-} from "vane-file-preview/plugins";
+} from "@dev_xiaoyun/vane-file-preview/plugins";
 ```
 
 ## 监控包体积
@@ -168,3 +168,4 @@ npm run build:plugins -- --analyze
 - 按需加载：~50KB + 运行时加载
 
 选择合适的方案可以显著提升应用性能！
+

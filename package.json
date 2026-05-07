@@ -1,31 +1,37 @@
 {
-  "name": "vane-file-preview",
-  "version": "1.0.4",
+  "name": "@dev_xiaoyun/vane-file-preview",
+  "version": "1.0.5",
   "description": "文件预览组件",
   "type": "module",
-  "main": "dist/index.umd.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
     "./core": {
       "import": "./dist/core/index.es.js",
-      "require": "./dist/core/index.umd.js",
+      "require": "./dist/core/index.cjs",
       "types": "./dist/core/index.d.ts"
     },
     "./plugins": {
       "import": "./dist/plugins/index.es.js",
-      "require": "./dist/plugins/index.umd.js",
+      "require": "./dist/plugins/index.cjs",
       "types": "./dist/plugins/index.d.ts"
     },
-    "./plugins/*": {
-      "import": "./dist/plugins/*/index.es.js",
-      "require": "./dist/plugins/*/index.umd.js",
-      "types": "./dist/plugins/*/index.d.ts"
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "core": [
+        "dist/core/index.d.ts"
+      ],
+      "plugins": [
+        "dist/plugins/index.d.ts"
+      ]
     }
   },
   "files": [
@@ -37,22 +43,23 @@
     "performance",
     "typescript"
   ],
-  "author": "vane",
+  "author": "xiaoyun",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frankvane/vane-file-preview.git"
+    "url": "https://github.com/xy200303/vane-file-preview.git"
   },
   "bugs": {
-    "url": "https://github.com/frankvane/vane-file-preview/issues"
+    "url": "https://github.com/xy200303/vane-file-preview/issues"
   },
-  "homepage": "https://github.com/frankvane/vane-file-preview#readme",
+  "homepage": "https://github.com/xy200303/vane-file-preview#readme",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build --mode lib",
-    "build:core": "tsc -b && vite build --mode core",
-    "build:plugins": "tsc -b && vite build --mode plugins",
-    "build:full": "tsc -b && vite build --mode lib",
+    "build": "npm run build:lib",
+    "build:lib": "tsc -b && vite build --mode lib && node scripts/postbuild-package.js",
+    "build:core": "npm run build:lib",
+    "build:plugins": "npm run build:lib",
+    "build:full": "npm run build:lib",
     "build:optimized": "node scripts/build-optimized.js",
     "build:demo": "vite build",
     "preview": "vite preview",
@@ -61,7 +68,6 @@
     "prepublishOnly": "npm run build:optimized"
   },
   "dependencies": {
-    "@types/papaparse": "^5.5.2",
     "@uiw/react-json-view": "^2.0.0-alpha.42",
     "docx-preview": "^0.3.7",
     "highlight.js": "^11.11.1",
@@ -70,14 +76,11 @@
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^5.7.284",
     "pptx-parser": "^1.1.7-beta.9",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
     "react-h5-audio-player": "^3.10.2",
     "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.1",
     "react-player": "^3.4.0",
     "react-reader": "^2.0.15",
-    "react-router-dom": "^7.15.0",
     "react-syntax-highlighter": "^16.1.1",
     "react-xml-viewer": "^3.0.4",
     "rehype-highlight": "^7.0.2",
@@ -88,9 +91,14 @@
     "remark-math": "^6.0.0",
     "xlsx": "^0.18.5"
   },
+  "peerDependencies": {
+    "react": ">=19.0.0 <20.0.0",
+    "react-dom": ">=19.0.0 <20.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.6.0",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -99,6 +107,9 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.15.0",
     "terser": "^5.47.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.2",
@@ -106,3 +117,4 @@
     "vite-plugin-dts": "^5.0.0"
   }
 }
+

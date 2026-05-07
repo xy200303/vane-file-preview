@@ -10,7 +10,7 @@ import {
   withPlugins,
   createCodePreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例代码文件列表
 const codeFiles: FileInfo[] = [
@@ -138,3 +138,4 @@ export default function CodePreviewDemo() {
     </DemoPage>
   );
 }
+

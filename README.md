@@ -2,7 +2,7 @@
 
 一个功能强大、高度可扩展的 React 文件预览组件库
 
-[![NPM Version](https://img.shields.io/badge/npm-v1.0.0-blue)](https://www.npmjs.com/package/vane-file-preview)
+[![NPM Version](https://img.shields.io/badge/npm-v1.0.0-blue)](https://www.npmjs.com/package/@dev_xiaoyun/vane-file-preview)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.x-blue)](https://react.dev/)
@@ -58,13 +58,13 @@
 
 ```bash
 # npm
-npm install vane-file-preview
+npm install @dev_xiaoyun/vane-file-preview
 
 # yarn
-yarn add vane-file-preview
+yarn add @dev_xiaoyun/vane-file-preview
 
 # pnpm
-pnpm add vane-file-preview
+pnpm add @dev_xiaoyun/vane-file-preview
 ```
 
 ### 本地开发
@@ -73,7 +73,7 @@ pnpm add vane-file-preview
 
 ```bash
 # 克隆仓库
-git clone https://github.com/frankvane/vane-file-preview.git
+git clone https://github.com/xy200303/vane-file-preview.git
 
 # 进入项目目录
 cd vane-file-preview
@@ -100,7 +100,7 @@ npm run preview
 最简单的使用方式，不带任何插件：
 
 ```tsx
-import { FilePreviewCore } from "vane-file-preview";
+import { FilePreviewCore } from "@dev_xiaoyun/vane-file-preview";
 
 function App() {
   const fileInfo = {
@@ -134,7 +134,7 @@ import {
   createPdfPreviewPlugin,
   createImagePreviewPlugin,
   createJsonPreviewPlugin,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 组合插件
 const FilePreview = withPlugins(FilePreviewCore, [
@@ -188,7 +188,7 @@ import {
   createVideoPreviewPlugin,
   createAudioPreviewPlugin,
   createZipPreviewPlugin,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 const UniversalFilePreview = withPlugins(FilePreviewCore, [
   // 文档预览
@@ -323,7 +323,7 @@ export default function FilePreviewDemo() {
 | `createErrorBoundaryPlugin` | 错误边界处理 |
 | `createLoadingPlugin`       | 加载状态显示 |
 
-> 💡 **提示**：所有插件都可以通过 `vane-file-preview` 包导入。详细配置请参考 [API 文档](#api-文档) 或查看 [在线演示](https://chinavane.netlify.app/)。
+> 💡 **提示**：所有插件都可以通过 `@dev_xiaoyun/vane-file-preview` 包导入。详细配置请参考 [API 文档](#api-文档) 或查看 [在线演示](https://chinavane.netlify.app/)。
 
 ---
 
@@ -445,7 +445,7 @@ import {
   FilePreviewCore,
   withPlugins,
   createPdfPreviewPlugin,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 const EnhancedFilePreview = withPlugins(FilePreviewCore, [
   createPdfPreviewPlugin({
@@ -591,7 +591,7 @@ interface Plugin {
 ### 创建自定义插件
 
 ```typescript
-import { Plugin, FileInfo } from "vane-file-preview";
+import { Plugin, FileInfo } from "@dev_xiaoyun/vane-file-preview";
 
 export function createCustomPreviewPlugin(options = {}) {
   return {
@@ -633,7 +633,7 @@ export function createCustomPreviewPlugin(options = {}) {
 ### 使用自定义插件
 
 ```typescript
-import { FilePreviewCore, withPlugins } from "vane-file-preview";
+import { FilePreviewCore, withPlugins } from "@dev_xiaoyun/vane-file-preview";
 import { createCustomPreviewPlugin } from "./CustomPreviewPlugin";
 
 const CustomFilePreview = withPlugins(FilePreviewCore, [
@@ -712,7 +712,7 @@ const RobustFilePreview = withPlugins(FilePreviewCore, [
 
 ```bash
 # 1. Fork 并克隆仓库
-git clone https://github.com/your-username/vane-file-preview.git
+git clone https://github.com/xy200303/vane-file-preview.git
 
 # 2. 安装依赖
 cd vane-file-preview
@@ -777,8 +777,8 @@ git commit -m "perf: 优化大文件加载性能"
 
 ## 📞 联系我们
 
-- **GitHub Issues**: [提交问题](https://github.com/frankvane/vane-file-preview/issues)
-- **GitHub Discussions**: [参与讨论](https://github.com/frankvane/vane-file-preview/discussions)
+- **GitHub Issues**: [提交问题](https://github.com/xy200303/vane-file-preview/issues)
+- **GitHub Discussions**: [参与讨论](https://github.com/xy200303/vane-file-preview/discussions)
 - **Email**: chinavane_2008@163.com
 
 ---
@@ -788,3 +788,4 @@ git commit -m "perf: 优化大文件加载性能"
 **如果这个项目对您有帮助，请给我们一个 ⭐️**
 
 [⬆️ 回到顶部](#-vane-file-preview)
+

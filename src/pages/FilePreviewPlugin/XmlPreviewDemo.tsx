@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FilePreviewCore, withPlugins, type FileInfo } from "vane-file-preview";
+import { FilePreviewCore, withPlugins, type FileInfo } from "@dev_xiaoyun/vane-file-preview";
 import { createXmlPreviewPlugin } from "../../components/FilePreviewPlugin/custom-plugins";
 import DemoPage from "./_layout/DemoPage";
 
@@ -160,3 +160,4 @@ const XmlPreviewDemo: React.FC = () => {
 };
 
 export default XmlPreviewDemo;
+

@@ -14,7 +14,7 @@ import {
   createPptxPreviewPlugin,
   createOfficePreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例Office文件列表
 const officeFiles: FileInfo[] = [
@@ -221,3 +221,4 @@ export default function OfficePreviewDemo() {
     </DemoPage>
   );
 }
+

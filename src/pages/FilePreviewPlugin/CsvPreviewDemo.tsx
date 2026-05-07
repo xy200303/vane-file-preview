@@ -10,7 +10,7 @@ import {
   withPlugins,
   createCsvPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例CSV文件列表
 const csvFiles: FileInfo[] = [
@@ -140,3 +140,4 @@ export default function CsvPreviewDemo() {
     </DemoPage>
   );
 }
+

@@ -10,7 +10,7 @@ import {
   withPlugins,
   createVideoPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例视频文件列表
 const videoFiles: FileInfo[] = [
@@ -127,3 +127,4 @@ export default function VideoPreviewDemo() {
     </DemoPage>
   );
 }
+

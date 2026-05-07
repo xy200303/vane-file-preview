@@ -24,7 +24,7 @@ import {
   createOfficePreviewPlugin,
   createZipPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例文件列表 - 从各个单独示例文件中提取的准确 FileInfo 数据
 const exampleFiles: FileInfo[] = [
@@ -457,3 +457,4 @@ export default function FilePreviewExample() {
     </DemoPage>
   );
 }
+

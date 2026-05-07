@@ -10,7 +10,7 @@ import {
   withPlugins,
   createImagePreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例图片文件列表
 const imageFiles: FileInfo[] = [
@@ -140,3 +140,4 @@ export default function ImagePreviewDemo() {
     </DemoPage>
   );
 }
+

@@ -1,5 +1,5 @@
 {
-  "name": "vane-file-preview",
+  "name": "@dev_xiaoyun/vane-file-preview",
   "version": "1.0.0",
   "description": "A comprehensive file preview plugin system",
   "main": "dist/index.js",
@@ -40,15 +40,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vane-dev/file-preview.git"
+    "url": "https://github.com/xy200303/vane-file-preview.git"
   },
   "bugs": {
-    "url": "https://github.com/vane-dev/file-preview/issues"
+    "url": "https://github.com/xy200303/vane-file-preview/issues"
   },
-  "homepage": "https://vane.dev/file-preview",
+  "homepage": "https://github.com/xy200303/vane-file-preview#readme",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
   "browserslist": ["> 1%", "last 2 versions", "not dead"]
 }
+

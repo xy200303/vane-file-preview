@@ -10,7 +10,7 @@ import {
   withPlugins,
   createMarkdownPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例Markdown文件列表
 const markdownFiles: FileInfo[] = [
@@ -114,3 +114,4 @@ export default function MarkdownPreviewDemo() {
     </DemoPage>
   );
 }
+

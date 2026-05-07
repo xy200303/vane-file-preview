@@ -10,7 +10,7 @@ import {
   withPlugins,
   createZipPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例ZIP文件列表
 const zipFiles: FileInfo[] = [
@@ -109,3 +109,4 @@ export default function ZipPreviewDemo() {
     </DemoPage>
   );
 }
+

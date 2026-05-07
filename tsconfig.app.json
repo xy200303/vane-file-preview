@@ -14,7 +14,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "vane-file-preview": ["./src/components/FilePreviewPlugin/index.ts"]
+      "@dev_xiaoyun/vane-file-preview": ["./src/components/FilePreviewPlugin/index.ts"],
+      "@dev_xiaoyun/vane-file-preview/core": ["./src/components/FilePreviewPlugin/core/FilePreviewCore.tsx"],
+      "@dev_xiaoyun/vane-file-preview/plugins": ["./src/components/FilePreviewPlugin/plugins/index.ts"]
     },
 
     /* Linting */
@@ -41,3 +43,4 @@
     "docs/styles"
   ]
 }
+

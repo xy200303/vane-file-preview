@@ -10,7 +10,7 @@ import {
   withPlugins,
   createAudioPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例音频文件列表
 const audioFiles: FileInfo[] = [
@@ -128,3 +128,4 @@ export default function AudioPreviewDemo() {
     </DemoPage>
   );
 }
+

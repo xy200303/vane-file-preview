@@ -1,10 +1,10 @@
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import react from "@vitejs/plugin-react";
 
 const manualChunkGroups: Record<string, string[]> = {
-  // 核心库
-  core: ["react", "react-dom"],
   // PDF 相关
   pdf: ["pdfjs-dist", "react-pdf"],
   // Office 文档相关
@@ -29,6 +29,43 @@ const manualChunkGroups: Record<string, string[]> = {
   json: ["@uiw/react-json-view"],
 };
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const libraryEntries = {
+  index: resolve(__dirname, "src/components/FilePreviewPlugin/index.ts"),
+  core: resolve(__dirname, "src/components/FilePreviewPlugin/core/index.ts"),
+  plugins: resolve(__dirname, "src/components/FilePreviewPlugin/plugins/index.ts"),
+};
+
+const externalPackages = [
+  "react",
+  "react-dom",
+  "react/jsx-runtime",
+  "react/jsx-dev-runtime",
+  // 外部化大型第三方库
+  "pdfjs-dist",
+  "xlsx",
+  "mammoth",
+  "jszip",
+  "highlight.js",
+  "react-syntax-highlighter",
+  "react-markdown",
+  "react-pdf",
+  "react-player",
+  "react-reader",
+  "react-h5-audio-player",
+  "papaparse",
+  "docx-preview",
+  "pptx-parser",
+  "@uiw/react-json-view",
+  "rehype-katex",
+  "rehype-highlight",
+  "rehype-raw",
+  "remark-gfm",
+  "remark-math",
+  "remark-breaks",
+];
+
 const getManualChunkName = (id: string) => {
   const normalizedId = id.replace(/\\/g, "/");
 
@@ -44,6 +81,15 @@ const getManualChunkName = (id: string) => {
 
   return undefined;
 };
+
+const getEntryFileName = (format: "es" | "cjs") =>
+  ({ name }: { name: string }) =>
+    name === "index"
+      ? `index.${format === "es" ? "es.js" : "cjs"}`
+      : `${name}/index.${format === "es" ? "es.js" : "cjs"}`;
+
+const getChunkFileName = (format: "es" | "cjs") =>
+  `chunks/[name]-[hash].${format === "es" ? "js" : "cjs"}`;
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -96,74 +142,29 @@ export default defineConfig(({ command, mode }) => {
           },
         },
         lib: {
-          entry: "./src/components/FilePreviewPlugin/index.ts",
-          name: "VaneFilePreview",
-          fileName: (format) => `index.${format}.js`,
+          entry: libraryEntries,
         },
         rollupOptions: {
           output: [
             {
               format: "es",
               dir: "dist",
-              entryFileNames: "index.es.js",
-              // 关键：在输出配置中添加更多优化
-              minifyInternalExports: true, // 压缩内部导出
+              entryFileNames: getEntryFileName("es"),
+              chunkFileNames: getChunkFileName("es"),
+              minifyInternalExports: true,
               manualChunks: getManualChunkName,
             },
             {
-              format: "umd",
+              format: "cjs",
               dir: "dist",
-              entryFileNames: "index.umd.js",
-              name: "VaneFilePreview",
-              globals: {
-                react: "React",
-                "react-dom": "ReactDOM",
-                "react-router-dom": "ReactRouterDOM",
-                "react-syntax-highlighter": "reactSyntaxHighlighter",
-                "react-markdown": "ReactMarkdown",
-                "rehype-highlight": "rehypeHighlight",
-                "rehype-katex": "rehypeKatex",
-                "rehype-raw": "rehypeRaw",
-                "remark-breaks": "remarkBreaks",
-                "remark-gfm": "remarkGfm",
-                "remark-math": "remarkMath",
-                jszip: "JSZip",
-                "docx-preview": "docxPreview",
-                xlsx: "XLSX",
-                "react-reader": "reactReader",
-                papaparse: "Papa",
-                "@uiw/react-json-view": "JsonView",
-              },
+              entryFileNames: getEntryFileName("cjs"),
+              chunkFileNames: getChunkFileName("cjs"),
+              exports: "named",
+              minifyInternalExports: true,
+              manualChunks: getManualChunkName,
             },
           ],
-          // 外部化大型依赖，让用户自己安装
-          external: [
-            "react",
-            "react-dom",
-            "react-router-dom",
-            // 外部化大型第三方库
-            "pdfjs-dist",
-            "xlsx",
-            "mammoth",
-            "jszip",
-            "highlight.js",
-            "react-syntax-highlighter",
-            "react-markdown",
-            "react-pdf",
-            "react-player",
-            "react-reader",
-            "react-h5-audio-player",
-            "papaparse",
-            "docx-preview",
-            "pptx-parser",
-            "@uiw/react-json-view",
-            "rehype-katex",
-            "rehype-highlight",
-            "rehype-raw",
-            "remark-gfm",
-            "remark-math",
-            "remark-breaks",
-          ],
+          external: externalPackages,
         },
       },
     };

@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "vane-file-preview",
+      "name": "@dev_xiaoyun/vane-file-preview",
       "dependencies": {
         "@types/papaparse": "^5.5.2",
         "@uiw/react-json-view": "^2.0.0-alpha.42",

@@ -10,7 +10,7 @@ import {
   withPlugins,
   createPdfPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例PDF文件列表
 const pdfFiles: FileInfo[] = [
@@ -124,3 +124,4 @@ export default function PdfPreviewDemo() {
     </DemoPage>
   );
 }
+

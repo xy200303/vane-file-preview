@@ -10,7 +10,7 @@ import {
   withPlugins,
   createJsonPreviewPlugin,
   type FileInfo,
-} from "vane-file-preview";
+} from "@dev_xiaoyun/vane-file-preview";
 
 // 示例JSON文件列表
 const jsonFiles: FileInfo[] = [
@@ -120,3 +120,4 @@ export default function JsonPreviewDemo() {
     </DemoPage>
   );
 }
+
