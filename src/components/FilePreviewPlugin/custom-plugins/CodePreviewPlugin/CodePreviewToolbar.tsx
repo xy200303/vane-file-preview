@@ -27,6 +27,47 @@ interface CodePreviewToolbarProps {
   enableThemeSelection?: boolean;
 }
 
+const softFieldGroupStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  padding: "8px 14px",
+  minHeight: 40,
+  borderRadius: 16,
+  background: "#ffffff",
+  boxShadow: "0 10px 30px rgba(148, 163, 184, 0.18)",
+};
+
+const softLabelStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "#52607a",
+  whiteSpace: "nowrap",
+  fontWeight: 600,
+};
+
+const softSelectStyle: React.CSSProperties = {
+  padding: "6px 10px",
+  border: "none",
+  borderRadius: 12,
+  fontSize: 12,
+  fontWeight: 500,
+  background: "#f8faff",
+  color: "#1f2a44",
+  minWidth: 100,
+  outline: "none",
+};
+
+const softToggleGroupStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 10,
+  padding: "8px 14px",
+  minHeight: 40,
+  borderRadius: 16,
+  background: "#ffffff",
+  boxShadow: "0 10px 30px rgba(148, 163, 184, 0.18)",
+};
+
 export const CodePreviewToolbar: React.FC<CodePreviewToolbarProps> = ({
   context,
   enableCopy = true,
@@ -296,21 +337,14 @@ export const CodePreviewToolbar: React.FC<CodePreviewToolbarProps> = ({
       <ToolbarSeparator />
 
       {enableLanguageSelection && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "#666", whiteSpace: "nowrap" }}>
+        <div style={softFieldGroupStyle}>
+          <label style={softLabelStyle}>
             Language:
           </label>
           <select
             value={selectedLanguage}
             onChange={handleLanguageChange}
-            style={{
-              padding: "4px 8px",
-              border: "1px solid #ddd",
-              borderRadius: 4,
-              fontSize: 12,
-              background: "#fff",
-              minWidth: 100,
-            }}
+            style={softSelectStyle}
           >
             {AVAILABLE_LANGUAGES.map((lang) => (
               <option key={lang.value} value={lang.value}>
@@ -322,19 +356,15 @@ export const CodePreviewToolbar: React.FC<CodePreviewToolbarProps> = ({
       )}
 
       {enableThemeSelection && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "#666", whiteSpace: "nowrap" }}>
+        <div style={softFieldGroupStyle}>
+          <label style={softLabelStyle}>
             Theme:
           </label>
           <select
             value={selectedSyntaxTheme}
             onChange={handleSyntaxThemeChange}
             style={{
-              padding: "4px 8px",
-              border: "1px solid #ddd",
-              borderRadius: 4,
-              fontSize: 12,
-              background: "#fff",
+              ...softSelectStyle,
               minWidth: 120,
             }}
           >
@@ -347,9 +377,9 @@ export const CodePreviewToolbar: React.FC<CodePreviewToolbarProps> = ({
         </div>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={softToggleGroupStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "#666", whiteSpace: "nowrap" }}>
+          <label style={softLabelStyle}>
             Line Numbers:
           </label>
           <input
@@ -360,7 +390,7 @@ export const CodePreviewToolbar: React.FC<CodePreviewToolbarProps> = ({
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "#666", whiteSpace: "nowrap" }}>
+          <label style={softLabelStyle}>
             Wrap Lines:
           </label>
           <input

@@ -209,6 +209,20 @@ export function createMammothDocxPlugin(
       render: (context) => {
         return <MammothDocxComponent context={context} config={config} />;
       },
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+      }),
       renderToolbar: (context) => {
         const handleDownload = () => {
           const link = document.createElement("a");

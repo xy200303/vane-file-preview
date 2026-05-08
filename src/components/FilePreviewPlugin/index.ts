@@ -12,6 +12,10 @@ export type {
 
 // 插件系统
 export { withPlugins } from "./plugins/withPlugins";
+export type {
+  ToolbarRenderParams,
+  WithPluginsRuntimeProps,
+} from "./plugins/withPlugins";
 export { createPluginBus } from "./plugins/PluginBus";
 export { createPluginManager } from "./plugins/PluginManager";
 
@@ -23,6 +27,8 @@ export type {
   PreviewState,
   PreviewStateInfo,
   PluginBus,
+  PluginActions,
+  PluginActionHandlers,
   PluginContext,
   PluginHooks,
   FilePreviewPlugin,

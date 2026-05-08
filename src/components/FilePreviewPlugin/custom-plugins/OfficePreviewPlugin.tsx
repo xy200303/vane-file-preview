@@ -6,6 +6,12 @@
 import type { FilePreviewPlugin, PluginContext } from "../plugins/types";
 import React, { useState } from "react";
 import { createIsolatedContainer } from "./styles/isolatedStyles";
+import {
+  FileInfo,
+  ToolbarButton,
+  ToolbarContainer,
+  ToolbarSeparator,
+} from "./shared/ToolbarComponents";
 
 export interface OfficePreviewPluginConfig {
   viewer?: "microsoft" | "google" | "auto";
@@ -213,6 +219,21 @@ export function createOfficePreviewPlugin(
         return <OfficePreviewComponent context={context} config={config} />;
       },
 
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+      }),
+
       renderToolbar: (context) => {
         const handleDownload = () => {
           const link = document.createElement("a");
@@ -229,25 +250,20 @@ export function createOfficePreviewPlugin(
         };
 
         return (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: "#666", padding: "4px 8px" }}>
-              {getFileTypeIcon(context.file.extension)} {context.file.name}
-            </span>
-            <button onClick={handleDownload} style={toolbarButtonStyle}>
-              📥 Download
-            </button>
-          </div>
+          <ToolbarContainer>
+            <FileInfo
+              name={context.file.name}
+              size={context.file.size}
+              type={context.file.extension.replace(".", "").toUpperCase()}
+              icon={getFileTypeIcon(context.file.extension)}
+            />
+            <ToolbarSeparator />
+            <ToolbarButton onClick={handleDownload} icon="📥" title="Download">
+              Download
+            </ToolbarButton>
+          </ToolbarContainer>
         );
       },
     },
   };
 }
-
-const toolbarButtonStyle: React.CSSProperties = {
-  padding: "4px 12px",
-  border: "1px solid #ddd",
-  borderRadius: 4,
-  background: "#fff",
-  cursor: "pointer",
-  fontSize: 14,
-};

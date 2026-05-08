@@ -82,6 +82,45 @@ const XlsxPreviewComponent: React.FC<{
     };
   }, [file.url, config.defaultSheetIndex]);
 
+  useEffect(() => {
+    context.sharedData?.set("xlsxActiveSheet", activeSheet);
+    context.sharedData?.set("xlsxSheetNames", workbook?.SheetNames ?? []);
+    context.sharedData?.set("xlsxLoading", loading);
+    context.bus?.emit("sharedDataChanged", {
+      key: "xlsxActiveSheet",
+      value: activeSheet,
+    });
+    context.bus?.emit("sharedDataChanged", {
+      key: "xlsxSheetNames",
+      value: workbook?.SheetNames ?? [],
+    });
+    context.bus?.emit("sharedDataChanged", {
+      key: "xlsxLoading",
+      value: loading,
+    });
+  }, [activeSheet, context.bus, context.sharedData, loading, workbook]);
+
+  useEffect(() => {
+    const unsubscribe = context.bus?.on("xlsx:setSheet", (payload: unknown) => {
+      if (!payload || typeof payload !== "object") {
+        return;
+      }
+
+      const index = Number((payload as { index?: number }).index);
+      const sheetCount = workbook?.SheetNames.length ?? 0;
+
+      if (!Number.isFinite(index) || sheetCount <= 0) {
+        return;
+      }
+
+      setActiveSheet(Math.max(0, Math.min(sheetCount - 1, Math.trunc(index))));
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [context.bus, workbook]);
+
   const html = useMemo(() => {
     console.log("XlsxPreviewComponent html useMemo triggered", {
       hasWorkbook: !!workbook,
@@ -334,6 +373,34 @@ export function createXlsxPreviewPlugin(
       render: (context) => {
         return <XlsxPreviewComponent context={context} config={config} />;
       },
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        previous: () => {
+          const activeSheet = Number(context.sharedData?.get("xlsxActiveSheet") ?? 0);
+          context.bus?.emit("xlsx:setSheet", { index: activeSheet - 1 });
+        },
+        next: () => {
+          const activeSheet = Number(context.sharedData?.get("xlsxActiveSheet") ?? 0);
+          context.bus?.emit("xlsx:setSheet", { index: activeSheet + 1 });
+        },
+        goTo: (index: number) => {
+          context.bus?.emit("xlsx:setSheet", { index });
+        },
+        setSheet: (index: number) => {
+          context.bus?.emit("xlsx:setSheet", { index });
+        },
+      }),
       renderToolbar: (context) => {
         const handleDownload = () => {
           const link = document.createElement("a");
@@ -364,10 +431,17 @@ export function createXlsxPreviewPlugin(
   };
 
   function SheetSwitcher({ context }: { context: PluginContext }) {
-    // 简化：暂时禁用 Sheet 切换功能，避免死循环
+    const sheetNames =
+      (context.sharedData?.get("xlsxSheetNames") as string[] | undefined) ?? [];
+    const activeSheet = Number(context.sharedData?.get("xlsxActiveSheet") ?? 0);
+
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 12, color: "#666" }}>Sheet: 1</span>
+        <span style={{ fontSize: 12, color: "#666" }}>
+          {sheetNames.length > 0
+            ? `Sheet: ${sheetNames[activeSheet] || activeSheet + 1}`
+            : "Sheet: 1"}
+        </span>
       </div>
     );
   }

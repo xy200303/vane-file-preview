@@ -37,6 +37,21 @@ const libraryEntries = {
   plugins: resolve(__dirname, "src/components/FilePreviewPlugin/plugins/index.ts"),
 };
 
+const localPackageAliases = {
+  "@dev_xiaoyun/vane-file-preview": resolve(
+    __dirname,
+    "src/components/FilePreviewPlugin/index.ts"
+  ),
+  "@dev_xiaoyun/vane-file-preview/core": resolve(
+    __dirname,
+    "src/components/FilePreviewPlugin/core/index.ts"
+  ),
+  "@dev_xiaoyun/vane-file-preview/plugins": resolve(
+    __dirname,
+    "src/components/FilePreviewPlugin/plugins/index.ts"
+  ),
+};
+
 const externalPackages = [
   "react",
   "react-dom",
@@ -46,7 +61,9 @@ const externalPackages = [
   "pdfjs-dist",
   "xlsx",
   "mammoth",
+  "chart.js",
   "jszip",
+  "pptxviewjs",
   "highlight.js",
   "react-syntax-highlighter",
   "react-markdown",
@@ -56,7 +73,6 @@ const externalPackages = [
   "react-h5-audio-player",
   "papaparse",
   "docx-preview",
-  "pptxviewjs",
   "@uiw/react-json-view",
   "rehype-katex",
   "rehype-highlight",
@@ -118,6 +134,9 @@ export default defineConfig(({ command, mode }) => {
   if (isDev) {
     return {
       plugins,
+      resolve: {
+        alias: localPackageAliases,
+      },
       server: {
         port: 3000,
         open: true,
@@ -173,6 +192,9 @@ export default defineConfig(({ command, mode }) => {
   // 默认应用构建模式（用于演示页面）
   return {
     plugins,
+    resolve: {
+      alias: localPackageAliases,
+    },
     base: "./",
     build: {
       outDir: "vane-file-preview",

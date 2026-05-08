@@ -51,6 +51,34 @@ export interface PluginBus {
   setData: (key: string, value: any) => void;
 }
 
+export type PluginActionHandler = (...args: any[]) => any;
+
+export interface PluginActionHandlers {
+  [actionName: string]: PluginActionHandler | undefined;
+}
+
+export interface PluginActions {
+  download: () => Promise<void>;
+  save: () => Promise<void>;
+  zoom: (scale: number) => void | Promise<void>;
+  zoomIn: (step?: number) => void | Promise<void>;
+  zoomOut: (step?: number) => void | Promise<void>;
+  rotate: (
+    payload?: number | { angle?: number; delta?: number }
+  ) => void | Promise<void>;
+  reset: () => void | Promise<void>;
+  previous: () => void | Promise<void>;
+  next: () => void | Promise<void>;
+  goTo: (index: number) => void | Promise<void>;
+  fullscreen: (enabled?: boolean) => void | Promise<void>;
+  run: <T = unknown>(
+    actionName: string,
+    ...args: any[]
+  ) => T | Promise<T> | undefined;
+  has: (actionName: string) => boolean;
+  list: () => string[];
+}
+
 // ============ 插件上下文 ============
 export interface PluginContext {
   file: FileInfo;
@@ -64,6 +92,7 @@ export interface PluginContext {
   progress?: PreviewProgress;
   metadata?: Record<string, any>;
   sharedData?: Map<string, any>;
+  actions: PluginActions;
 }
 
 // ============ 插件钩子 ============
@@ -90,6 +119,7 @@ export interface PluginHooks {
   render?: (context: PluginContext) => React.ReactNode;
   renderToolbar?: (context: PluginContext) => React.ReactNode;
   renderOverlay?: (context: PluginContext) => React.ReactNode;
+  getActions?: (context: PluginContext) => PluginActionHandlers;
 
   // 数据转换
   transformData?: (context: PluginContext, data: any) => any | Promise<any>;

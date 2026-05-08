@@ -5,6 +5,13 @@
 
 import {
   FileInfo,
+  softControlBarStyle,
+  softFieldGroupStyle,
+  softInputStyle,
+  softLabelStyle,
+  softMetaPillStyle,
+  softSelectStyle,
+  softTagStyle,
   ToolbarButton,
   ToolbarContainer,
   ToolbarSeparator,
@@ -26,6 +33,15 @@ export interface CsvPreviewConfig {
   autoDetectDelimiter?: boolean;
   autoDetectEncoding?: boolean;
 }
+
+const compactActionButtonStyle: React.CSSProperties = {
+  ...softInputStyle,
+  minWidth: "auto",
+  padding: "6px 10px",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 600,
+};
 
 const CsvPreviewComponent: React.FC<{
   context: PluginContext;
@@ -50,6 +66,10 @@ const CsvPreviewComponent: React.FC<{
   const [delimiter, setDelimiter] = useState<string>(",");
   const [encoding, setEncoding] = useState<string>("utf-8");
   const [manualDelimiter, setManualDelimiter] = useState<string>("");
+
+  useEffect(() => {
+    context.sharedData?.set("csvPreviewData", csvData);
+  }, [context.sharedData, csvData]);
 
   // 解析 CSV 数据
   useEffect(() => {
@@ -261,6 +281,40 @@ const CsvPreviewComponent: React.FC<{
     };
   }, [filteredAndSortedData, currentPage, pageSize]);
 
+  useEffect(() => {
+    context.sharedData?.set("csvCurrentPage", currentPage);
+    context.sharedData?.set("csvTotalPages", paginatedData?.totalPages ?? 0);
+    context.bus?.emit("sharedDataChanged", {
+      key: "csvCurrentPage",
+      value: currentPage,
+    });
+    context.bus?.emit("sharedDataChanged", {
+      key: "csvTotalPages",
+      value: paginatedData?.totalPages ?? 0,
+    });
+  }, [context.bus, context.sharedData, currentPage, paginatedData?.totalPages]);
+
+  useEffect(() => {
+    const unsubscribe = context.bus?.on("csv:setPage", (payload: unknown) => {
+      if (!payload || typeof payload !== "object") {
+        return;
+      }
+
+      const page = Number((payload as { page?: number }).page);
+      const totalPages = paginatedData?.totalPages ?? 1;
+
+      if (!Number.isFinite(page)) {
+        return;
+      }
+
+      setCurrentPage(Math.max(1, Math.min(totalPages, Math.trunc(page))));
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [context.bus, paginatedData?.totalPages]);
+
   // 排序处理
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -360,105 +414,91 @@ const CsvPreviewComponent: React.FC<{
       {/* 工具栏 */}
       <div
         style={{
-          background: "#f8f9fa",
-          borderBottom: "1px solid #dee2e6",
-          padding: "12px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          flexWrap: "wrap",
+          ...softControlBarStyle,
+          justifyContent: "space-between",
         }}
       >
-        {/* 搜索框 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <input
-            type="text"
-            placeholder="搜索..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              fontSize: "14px",
-              width: "200px",
-            }}
-          />
-        </div>
-
-        {/* 分隔符选择 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <label style={{ fontSize: "12px", color: "#666" }}>分隔符:</label>
-          <select
-            value={delimiter}
-            onChange={(e) => {
-              setDelimiter(e.target.value);
-              setManualDelimiter(e.target.value);
-            }}
-            style={{
-              padding: "4px 8px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              fontSize: "12px",
-            }}
-          >
-            <option value=",">逗号 (,)</option>
-            <option value=";">分号 (;)</option>
-            <option value="\t">制表符 (Tab)</option>
-            <option value="|">竖线 (|)</option>
-          </select>
-          {autoDetectDelimiter && !manualDelimiter && (
-            <span
-              style={{ fontSize: "10px", color: "#28a745", fontWeight: "500" }}
-            >
-              🔍 自动检测
-            </span>
-          )}
-          {manualDelimiter && (
-            <button
-              onClick={() => {
-                setManualDelimiter("");
-                setDelimiter(",");
-              }}
-              style={{
-                padding: "2px 6px",
-                fontSize: "10px",
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #ddd",
-                borderRadius: "3px",
-                cursor: "pointer",
-                color: "#666",
-              }}
-              title="重置为自动检测"
-            >
-              🔄 重置
-            </button>
-          )}
-        </div>
-
-        <div style={{ flex: 1 }} />
-
-        {/* 统计信息 */}
-        <div style={{ fontSize: "12px", color: "#666" }}>
-          显示 {paginatedData.startIndex}-{paginatedData.endIndex} /{" "}
-          {csvData.totalRows} 行
-        </div>
-
-        {/* 导出按钮 */}
-        <button
-          onClick={handleExport}
+        <div
           style={{
-            padding: "6px 12px",
-            backgroundColor: "#007acc",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            minWidth: 0,
+            flex: "1 1 420px",
           }}
         >
-          📥 导出 CSV
-        </button>
+          <div style={softFieldGroupStyle}>
+            <input
+              type="text"
+              placeholder="搜索..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                ...softInputStyle,
+                width: 220,
+              }}
+            />
+          </div>
+
+          <div style={softFieldGroupStyle}>
+            <label style={softLabelStyle}>分隔符</label>
+            <select
+              value={delimiter}
+              onChange={(e) => {
+                setDelimiter(e.target.value);
+                setManualDelimiter(e.target.value);
+              }}
+              style={{
+                ...softSelectStyle,
+                minWidth: 132,
+              }}
+            >
+              <option value=",">逗号 (,)</option>
+              <option value=";">分号 (;)</option>
+              <option value="\t">制表符 (Tab)</option>
+              <option value="|">竖线 (|)</option>
+            </select>
+            {autoDetectDelimiter && !manualDelimiter && (
+              <span style={softTagStyle}>自动检测</span>
+            )}
+            {manualDelimiter && (
+              <button
+                onClick={() => {
+                  setManualDelimiter("");
+                  setDelimiter(",");
+                }}
+                style={compactActionButtonStyle}
+                title="重置为自动检测"
+              >
+                重置
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+          }}
+        >
+          <div style={softMetaPillStyle}>
+            显示 {paginatedData.startIndex}-{paginatedData.endIndex} /{" "}
+            {csvData.totalRows} 行
+          </div>
+          <ToolbarButton
+            onClick={handleExport}
+            icon="📥"
+            title="导出 CSV"
+            variant="soft"
+          >
+            导出 CSV
+          </ToolbarButton>
+        </div>
       </div>
 
       {/* 表格容器 */}
@@ -590,92 +630,52 @@ const CsvPreviewComponent: React.FC<{
       {paginatedData.totalPages > 1 && (
         <div
           style={{
-            background: "#f8f9fa",
-            borderTop: "1px solid #dee2e6",
-            padding: "12px 16px",
-            display: "flex",
-            alignItems: "center",
+            ...softControlBarStyle,
+            borderBottom: "none",
+            borderTop: "1px solid #e8edf5",
             justifyContent: "space-between",
           }}
         >
-          <div style={{ fontSize: "12px", color: "#666" }}>
+          <div style={softMetaPillStyle}>
             第 {currentPage} 页，共 {paginatedData.totalPages} 页
           </div>
 
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <ToolbarButton
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              style={{
-                padding: "4px 8px",
-                border: "1px solid #ddd",
-                background: "white",
-                borderRadius: "4px",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                opacity: currentPage === 1 ? 0.5 : 1,
-                fontSize: "12px",
-              }}
+              variant="soft"
             >
               首页
-            </button>
+            </ToolbarButton>
 
-            <button
+            <ToolbarButton
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              style={{
-                padding: "4px 8px",
-                border: "1px solid #ddd",
-                background: "white",
-                borderRadius: "4px",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                opacity: currentPage === 1 ? 0.5 : 1,
-                fontSize: "12px",
-              }}
+              variant="soft"
             >
               上一页
-            </button>
+            </ToolbarButton>
 
-            <button
+            <ToolbarButton
               onClick={() =>
                 setCurrentPage(
                   Math.min(paginatedData.totalPages, currentPage + 1)
                 )
               }
               disabled={currentPage === paginatedData.totalPages}
-              style={{
-                padding: "4px 8px",
-                border: "1px solid #ddd",
-                background: "white",
-                borderRadius: "4px",
-                cursor:
-                  currentPage === paginatedData.totalPages
-                    ? "not-allowed"
-                    : "pointer",
-                opacity: currentPage === paginatedData.totalPages ? 0.5 : 1,
-                fontSize: "12px",
-              }}
+              variant="soft"
             >
               下一页
-            </button>
+            </ToolbarButton>
 
-            <button
+            <ToolbarButton
               onClick={() => setCurrentPage(paginatedData.totalPages)}
               disabled={currentPage === paginatedData.totalPages}
-              style={{
-                padding: "4px 8px",
-                border: "1px solid #ddd",
-                background: "white",
-                borderRadius: "4px",
-                cursor:
-                  currentPage === paginatedData.totalPages
-                    ? "not-allowed"
-                    : "pointer",
-                opacity: currentPage === paginatedData.totalPages ? 0.5 : 1,
-                fontSize: "12px",
-              }}
+              variant="soft"
             >
               末页
-            </button>
+            </ToolbarButton>
           </div>
         </div>
       )}
@@ -702,6 +702,57 @@ export function createCsvPreviewPlugin(
       render: (context) => {
         return <CsvPreviewComponent context={context} config={config} />;
       },
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const csvValue = context.sharedData?.get("csvPreviewData") as
+            | CsvData
+            | null
+            | undefined;
+
+          if (!csvValue) {
+            const link = document.createElement("a");
+            link.href = context.file.url;
+            link.download = context.file.name;
+            link.click();
+            return;
+          }
+
+          const csv = Papa.unparse({
+            fields: csvValue.headers,
+            data: csvValue.rows,
+          });
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = context.file.name.replace(/\.[^/.]+$/, ".csv");
+          link.click();
+        },
+        previous: () => {
+          const currentPage = Number(context.sharedData?.get("csvCurrentPage") ?? 1);
+          context.bus?.emit("csv:setPage", { page: currentPage - 1 });
+        },
+        next: () => {
+          const currentPage = Number(context.sharedData?.get("csvCurrentPage") ?? 1);
+          context.bus?.emit("csv:setPage", { page: currentPage + 1 });
+        },
+        goTo: (page: number) => {
+          context.bus?.emit("csv:setPage", { page });
+        },
+        firstPage: () => {
+          context.bus?.emit("csv:setPage", { page: 1 });
+        },
+        lastPage: () => {
+          const totalPages = Number(context.sharedData?.get("csvTotalPages") ?? 1);
+          context.bus?.emit("csv:setPage", { page: totalPages });
+        },
+      }),
       renderToolbar: (context) => {
         const handleDownload = () => {
           const link = document.createElement("a");

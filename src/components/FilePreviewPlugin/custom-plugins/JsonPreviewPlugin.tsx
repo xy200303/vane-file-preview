@@ -5,6 +5,12 @@
 
 import {
   FileInfo,
+  softControlBarStyle,
+  softFieldGroupStyle,
+  softInputStyle,
+  softLabelStyle,
+  softMetaPillStyle,
+  softSelectStyle,
   ToolbarButton,
   ToolbarContainer,
   ToolbarSeparator,
@@ -41,6 +47,36 @@ export interface JsonPreviewConfig {
   collapsed?: number; // 默认折叠层级，0表示全部展开
 }
 
+const searchResultsPanelStyle: React.CSSProperties = {
+  background: "#f5f7fb",
+  borderBottom: "1px solid #e8edf5",
+  padding: "8px 16px",
+  maxHeight: 220,
+  overflowY: "auto",
+};
+
+const resultCardStyle: React.CSSProperties = {
+  padding: "10px 14px",
+  margin: "0 0 8px",
+  background: "#ffffff",
+  borderRadius: 16,
+  fontSize: 11,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  boxShadow: "0 10px 30px rgba(148, 163, 184, 0.16)",
+};
+
+const compactActionButtonStyle: React.CSSProperties = {
+  ...softInputStyle,
+  minWidth: "auto",
+  padding: "6px 10px",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 600,
+};
+
 const JsonPreviewComponent: React.FC<{
   context: PluginContext;
   config?: JsonPreviewConfig;
@@ -73,6 +109,10 @@ const JsonPreviewComponent: React.FC<{
     theme === "auto" ? getSystemTheme() : theme
   );
   const [isValidJson, setIsValidJson] = useState(true);
+
+  useEffect(() => {
+    context.sharedData?.set("jsonPreviewData", jsonData);
+  }, [context.sharedData, jsonData]);
 
   // 解析 JSON 数据
   useEffect(() => {
@@ -382,180 +422,120 @@ const JsonPreviewComponent: React.FC<{
       {/* 工具栏 */}
       <div
         style={{
-          background: currentTheme === "dark" ? "#2d3748" : "#f8f9fa",
-          borderBottom: `1px solid ${
-            currentTheme === "dark" ? "#4a5568" : "#dee2e6"
-          }`,
-          padding: "12px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          flexWrap: "wrap",
+          ...softControlBarStyle,
+          justifyContent: "space-between",
         }}
       >
-        {/* 搜索框 */}
-        {enableSearch && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <input
-              type="text"
-              placeholder="搜索 JSON..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: "6px 12px",
-                border: `1px solid ${
-                  currentTheme === "dark" ? "#4a5568" : "#ddd"
-                }`,
-                borderRadius: "4px",
-                fontSize: "14px",
-                width: "200px",
-                background: currentTheme === "dark" ? "#4a5568" : "white",
-                color: currentTheme === "dark" ? "white" : "black",
-              }}
-            />
-            {searchResults.length > 0 && (
-              <span style={{ fontSize: "12px", color: "#666" }}>
-                {searchResults.length} 个结果
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* 主题选择器 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <label
-            htmlFor="theme-select"
-            style={{
-              fontSize: "12px",
-              color: currentTheme === "dark" ? "#e2e8f0" : "#4a5568",
-              fontWeight: "500",
-            }}
-          >
-            🎨 主题:
-          </label>
-          <select
-            id="theme-select"
-            value={currentTheme}
-            onChange={handleThemeChange}
-            style={{
-              padding: "4px 8px",
-              fontSize: "12px",
-              border: `1px solid ${
-                currentTheme === "dark" ? "#4a5568" : "#d1d5db"
-              }`,
-              borderRadius: "4px",
-              backgroundColor: currentTheme === "dark" ? "#374151" : "#ffffff",
-              color: currentTheme === "dark" ? "#f9fafb" : "#374151",
-              cursor: "pointer",
-              outline: "none",
-              minWidth: "100px",
-              // 自定义下拉箭头样式
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${
-                currentTheme === "dark" ? "%23f9fafb" : "%23374151"
-              }' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 6px center",
-              backgroundSize: "12px",
-              paddingRight: "24px",
-            }}
-          >
-            <option value="auto">{getThemeDisplayName("auto")}</option>
-            <option value="light">{getThemeDisplayName("light")}</option>
-            <option value="dark">{getThemeDisplayName("dark")}</option>
-            <option value="nord">{getThemeDisplayName("nord")}</option>
-            <option value="githubLight">
-              {getThemeDisplayName("githubLight")}
-            </option>
-            <option value="githubDark">
-              {getThemeDisplayName("githubDark")}
-            </option>
-            <option value="vscode">{getThemeDisplayName("vscode")}</option>
-            <option value="gruvbox">{getThemeDisplayName("gruvbox")}</option>
-            <option value="monokai">{getThemeDisplayName("monokai")}</option>
-            <option value="basic">{getThemeDisplayName("basic")}</option>
-          </select>
-        </div>
-
-        <div style={{ flex: 1 }} />
-
-        {/* 统计信息 */}
-        <div style={{ fontSize: "12px", color: "#666" }}>
-          {typeof jsonData === "object" && jsonData !== null
-            ? Array.isArray(jsonData)
-              ? `数组 (${jsonData.length} 项)`
-              : `对象 (${Object.keys(jsonData).length} 属性)`
-            : typeof jsonData}
-        </div>
-
-        {/* 导出按钮 */}
-        <button
-          onClick={exportJson}
+        <div
           style={{
-            padding: "6px 12px",
-            backgroundColor: "#007acc",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            minWidth: 0,
+            flex: "1 1 420px",
           }}
         >
-          📥 导出 JSON
-        </button>
+          {enableSearch && (
+            <div style={softFieldGroupStyle}>
+              <input
+                type="text"
+                placeholder="搜索 JSON..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  ...softInputStyle,
+                  width: 220,
+                }}
+              />
+              {searchResults.length > 0 && (
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  {searchResults.length} 个结果
+                </span>
+              )}
+            </div>
+          )}
+
+          <div style={softFieldGroupStyle}>
+            <label htmlFor="theme-select" style={softLabelStyle}>
+              主题
+            </label>
+            <select
+              id="theme-select"
+              value={currentTheme}
+              onChange={handleThemeChange}
+              style={{
+                ...softSelectStyle,
+                minWidth: 112,
+              }}
+            >
+              <option value="auto">{getThemeDisplayName("auto")}</option>
+              <option value="light">{getThemeDisplayName("light")}</option>
+              <option value="dark">{getThemeDisplayName("dark")}</option>
+              <option value="nord">{getThemeDisplayName("nord")}</option>
+              <option value="githubLight">
+                {getThemeDisplayName("githubLight")}
+              </option>
+              <option value="githubDark">
+                {getThemeDisplayName("githubDark")}
+              </option>
+              <option value="vscode">{getThemeDisplayName("vscode")}</option>
+              <option value="gruvbox">{getThemeDisplayName("gruvbox")}</option>
+              <option value="monokai">{getThemeDisplayName("monokai")}</option>
+              <option value="basic">{getThemeDisplayName("basic")}</option>
+            </select>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+          }}
+        >
+          <div style={softMetaPillStyle}>
+            {typeof jsonData === "object" && jsonData !== null
+              ? Array.isArray(jsonData)
+                ? `数组 (${jsonData.length} 项)`
+                : `对象 (${Object.keys(jsonData).length} 属性)`
+              : typeof jsonData}
+          </div>
+          <ToolbarButton
+            onClick={exportJson}
+            icon="📥"
+            title="导出 JSON"
+            variant="soft"
+          >
+            导出 JSON
+          </ToolbarButton>
+        </div>
       </div>
 
       {/* 搜索结果 */}
       {searchResults.length > 0 && (
-        <div
-          style={{
-            background: currentTheme === "dark" ? "#2d3748" : "#e3f2fd",
-            borderBottom: `1px solid ${
-              currentTheme === "dark" ? "#4a5568" : "#dee2e6"
-            }`,
-            padding: "8px 16px",
-            maxHeight: "200px",
-            overflowY: "auto",
-          }}
-        >
+        <div style={searchResultsPanelStyle}>
           <div
-            style={{ fontSize: "12px", fontWeight: "500", marginBottom: "8px" }}
+            style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: "#52607a" }}
           >
             搜索结果 ({searchResults.length}):
           </div>
           {searchResults.slice(0, 10).map((result, index) => (
-            <div
-              key={index}
-              style={{
-                padding: "4px 8px",
-                margin: "2px 0",
-                background: currentTheme === "dark" ? "#4a5568" : "white",
-                borderRadius: "4px",
-                fontSize: "11px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div>
+            <div key={index} style={resultCardStyle}>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <span style={{ fontWeight: "500" }}>{result.path}</span>
-                <span style={{ color: "#666", marginLeft: "8px" }}>
+                <span style={{ color: "#64748b", marginLeft: "8px" }}>
                   ({result.type})
                 </span>
               </div>
               {enableCopy && (
                 <button
                   onClick={() => copyPath(result.path)}
-                  style={{
-                    padding: "2px 6px",
-                    fontSize: "10px",
-                    background: "#f0f0f0",
-                    border: "1px solid #ddd",
-                    borderRadius: "3px",
-                    cursor: "pointer",
-                  }}
+                  style={compactActionButtonStyle}
                 >
-                  📋 复制路径
+                  复制路径
                 </button>
               )}
             </div>
@@ -563,10 +543,10 @@ const JsonPreviewComponent: React.FC<{
           {searchResults.length > 10 && (
             <div
               style={{
-                fontSize: "11px",
-                color: "#666",
+                fontSize: 11,
+                color: "#64748b",
                 textAlign: "center",
-                marginTop: "8px",
+                marginTop: 8,
               }}
             >
               显示前 10 个结果，共 {searchResults.length} 个
@@ -612,6 +592,32 @@ export function createJsonPreviewPlugin(
       render: (context) => {
         return <JsonPreviewComponent context={context} config={config} />;
       },
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const jsonValue = context.sharedData?.get("jsonPreviewData");
+
+          if (jsonValue === undefined || jsonValue === null) {
+            const link = document.createElement("a");
+            link.href = context.file.url;
+            link.download = context.file.name;
+            link.click();
+            return;
+          }
+
+          const jsonString = JSON.stringify(jsonValue, null, 2);
+          const blob = new Blob([jsonString], { type: "application/json" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = context.file.name.replace(/\.[^/.]+$/, ".json");
+          link.click();
+        },
+      }),
       renderToolbar: (context) => {
         const handleDownload = () => {
           const link = document.createElement("a");

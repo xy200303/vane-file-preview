@@ -7,6 +7,10 @@ import { CodePreviewComponent } from "./CodePreviewComponent";
 import { CodePreviewToolbar } from "./CodePreviewToolbar";
 import type { FilePreviewPlugin } from "../../plugins/types";
 import React from "react";
+import {
+  saveUserPreferences,
+  setLanguagePreference,
+} from "./preferences";
 
 export interface CodePreviewPluginConfig {
   showLineNumbers?: boolean;
@@ -256,6 +260,74 @@ export function createCodePreviewPlugin(
       render: (context) => {
         return <CodePreviewComponent context={context} />;
       },
+
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        copy: async () => {
+          const response = await fetch(context.file.url);
+          const text = await response.text();
+          await navigator.clipboard.writeText(text);
+          context.sharedData?.set("codeCopied", true);
+          context.bus?.emit("sharedDataChanged", {
+            key: "codeCopied",
+            value: true,
+          });
+          window.setTimeout(() => {
+            context.sharedData?.set("codeCopied", false);
+            context.bus?.emit("sharedDataChanged", {
+              key: "codeCopied",
+              value: false,
+            });
+          }, 2000);
+        },
+        setLanguage: (language: string) => {
+          context.sharedData?.set("selectedLanguage", language);
+          setLanguagePreference(context.file.name, language);
+          context.bus?.emit("languageChange", { language });
+          context.bus?.emit("sharedDataChanged", {
+            key: "selectedLanguage",
+            value: language,
+          });
+        },
+        setTheme: (syntaxTheme: string) => {
+          context.sharedData?.set("selectedSyntaxTheme", syntaxTheme);
+          saveUserPreferences({ theme: syntaxTheme });
+          context.bus?.emit("syntaxThemeChange", { syntaxTheme });
+          context.bus?.emit("sharedDataChanged", {
+            key: "selectedSyntaxTheme",
+            value: syntaxTheme,
+          });
+        },
+        setLineNumbers: (show: boolean) => {
+          context.sharedData?.set("showLineNumbers", show);
+          saveUserPreferences({ showLineNumbers: show });
+          context.bus?.emit("toggleLineNumbers", { showLineNumbers: show });
+          context.bus?.emit("sharedDataChanged", {
+            key: "showLineNumbers",
+            value: show,
+          });
+        },
+        setWrapLongLines: (wrap: boolean) => {
+          context.sharedData?.set("wrapLongLines", wrap);
+          saveUserPreferences({ wrapLongLines: wrap });
+          context.bus?.emit("toggleWrapLongLines", { wrapLongLines: wrap });
+          context.bus?.emit("sharedDataChanged", {
+            key: "wrapLongLines",
+            value: wrap,
+          });
+        },
+      }),
 
       renderToolbar: (context) => {
         return (

@@ -9,6 +9,7 @@
 
 import {
   FileInfo,
+  softFieldGroupStyle,
   ToolbarButton,
   ToolbarContainer,
   ToolbarSeparator,
@@ -346,40 +347,26 @@ const MarkdownPreviewComponent: React.FC<{
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 16,
-          paddingBottom: 8,
-          borderBottom: `1px solid ${
-            currentTheme === "dark" ? "#444" : "#e0e0e0"
-          }`,
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
-        <h3
+        <div
           style={{
-            margin: 0,
-            fontSize: 16,
-            color: currentTheme === "dark" ? "#e0e0e0" : "#333",
+            ...softFieldGroupStyle,
+            color: "#1f2a44",
           }}
         >
-          📝 {file.name}
-        </h3>
+          {showRaw ? "原始内容" : "Markdown 预览"}
+        </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button
+          <ToolbarButton
             onClick={() => setShowRaw(!showRaw)}
-            style={{
-              padding: "4px 12px",
-              border: `1px solid ${currentTheme === "dark" ? "#555" : "#ddd"}`,
-              borderRadius: 4,
-              background: showRaw ? "#2196f3" : "transparent",
-              color: showRaw
-                ? "#fff"
-                : currentTheme === "dark"
-                ? "#e0e0e0"
-                : "#333",
-              cursor: "pointer",
-              fontSize: 12,
-            }}
+            active={showRaw}
+            variant="soft"
           >
-            {showRaw ? "Preview" : "Raw"}
-          </button>
+            {showRaw ? "预览模式" : "原始内容"}
+          </ToolbarButton>
         </div>
       </div>
 
@@ -545,6 +532,31 @@ export function createMarkdownPreviewPlugin(
       render: (context) => {
         return <MarkdownPreviewComponent context={context} config={config} />;
       },
+
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        toggleTheme: () => {
+          const currentTheme = config.theme || "light";
+          const newTheme = currentTheme === "light" ? "dark" : "light";
+          config.theme = newTheme;
+          context.bus?.emit("themeChange", { theme: newTheme });
+        },
+        setTheme: (theme: "light" | "dark") => {
+          config.theme = theme;
+          context.bus?.emit("themeChange", { theme });
+        },
+      }),
 
       renderToolbar: (context) => {
         const handleDownload = () => {

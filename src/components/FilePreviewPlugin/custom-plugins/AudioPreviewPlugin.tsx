@@ -79,19 +79,6 @@ export function createAudioPreviewPlugin(
               🎵
             </div>
 
-            {/* 文件名 */}
-            <div
-              style={{
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: 500,
-                textAlign: "center",
-                padding: "0 20px",
-              }}
-            >
-              {file.name}
-            </div>
-
             {/* 音频控件 */}
             <audio
               src={file.url}
@@ -112,6 +99,21 @@ export function createAudioPreviewPlugin(
           </div>
         );
       },
+
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+      }),
 
       renderToolbar: (context) => {
         const handleDownload = () => {

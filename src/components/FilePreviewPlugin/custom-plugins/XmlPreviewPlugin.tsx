@@ -1,5 +1,9 @@
 import {
   FileInfo,
+  softControlBarStyle,
+  softFieldGroupStyle,
+  softInputStyle,
+  softMetaPillStyle,
   ToolbarButton,
   ToolbarContainer,
   ToolbarSeparator,
@@ -8,6 +12,15 @@ import { FilePreviewPlugin, PluginContext } from "../plugins/types";
 import React, { useEffect, useMemo, useState } from "react";
 
 import XmlViewer from "react-xml-viewer";
+
+const compactActionButtonStyle: React.CSSProperties = {
+  ...softInputStyle,
+  minWidth: "auto",
+  padding: "6px 10px",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 600,
+};
 
 export interface XmlPreviewConfig {
   maxFileSize?: number; // 最大文件大小 (bytes)
@@ -182,6 +195,20 @@ const XmlPreviewComponent: React.FC<{
     }
   };
 
+  useEffect(() => {
+    const unsubscribeCopy = context.bus?.on("xml:copy", () => {
+      void copyToClipboard();
+    });
+    const unsubscribeFormat = context.bus?.on("xml:format", () => {
+      formatXml();
+    });
+
+    return () => {
+      unsubscribeCopy?.();
+      unsubscribeFormat?.();
+    };
+  }, [context.bus, xmlContent]);
+
   // 渲染加载状态
   if (loading) {
     return (
@@ -247,69 +274,53 @@ const XmlPreviewComponent: React.FC<{
       {/* 搜索和操作栏 */}
       <div
         style={{
-          padding: "12px 16px",
-          borderBottom: `1px solid ${
-            currentTheme === "dark" ? "#30363d" : "#d0d7de"
-          }`,
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          background: currentTheme === "dark" ? "#161b22" : "#f6f8fa",
+          ...softControlBarStyle,
+          justifyContent: "space-between",
         }}
       >
-        {mergedConfig.enableSearch && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <input
-              type="text"
-              placeholder="搜索 XML 内容..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{
-                padding: "6px 12px",
-                border: `1px solid ${
-                  currentTheme === "dark" ? "#30363d" : "#d0d7de"
-                }`,
-                borderRadius: "6px",
-                background: currentTheme === "dark" ? "#0d1117" : "#ffffff",
-                color: currentTheme === "dark" ? "#e6edf3" : "#24292f",
-                fontSize: "13px",
-                width: "200px",
-              }}
-            />
-            {searchResults.length > 0 && (
-              <span
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            minWidth: 0,
+            flex: "1 1 320px",
+          }}
+        >
+          {mergedConfig.enableSearch && (
+            <div style={softFieldGroupStyle}>
+              <input
+                type="text"
+                placeholder="搜索 XML 内容..."
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
                 style={{
-                  fontSize: "12px",
-                  color: currentTheme === "dark" ? "#7d8590" : "#586069",
+                  ...softInputStyle,
+                  width: 220,
                 }}
-              >
-                找到 {searchResults.length} 个结果
-              </span>
-            )}
-          </div>
-        )}
+              />
+              {searchResults.length > 0 && (
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  找到 {searchResults.length} 个结果
+                </span>
+              )}
+            </div>
+          )}
 
-        <div style={{ display: "flex", gap: 8 }}>
+          <div style={softMetaPillStyle}>
+            {xmlContent ? `${xmlContent.length.toLocaleString()} 字符` : "XML"}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {mergedConfig.enableFormat && (
             <button
               onClick={formatXml}
               title="格式化 XML"
-              style={{
-                padding: "6px 12px",
-                border: `1px solid ${
-                  currentTheme === "dark" ? "#30363d" : "#d0d7de"
-                }`,
-                borderRadius: "6px",
-                background: currentTheme === "dark" ? "#21262d" : "#ffffff",
-                color: currentTheme === "dark" ? "#e6edf3" : "#24292f",
-                fontSize: "12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
+              style={compactActionButtonStyle}
             >
-              🎨 格式化
+              格式化
             </button>
           )}
 
@@ -317,22 +328,9 @@ const XmlPreviewComponent: React.FC<{
             <button
               onClick={copyToClipboard}
               title="复制 XML 内容"
-              style={{
-                padding: "6px 12px",
-                border: `1px solid ${
-                  currentTheme === "dark" ? "#30363d" : "#d0d7de"
-                }`,
-                borderRadius: "6px",
-                background: currentTheme === "dark" ? "#21262d" : "#ffffff",
-                color: currentTheme === "dark" ? "#e6edf3" : "#24292f",
-                fontSize: "12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-              }}
+              style={compactActionButtonStyle}
             >
-              📋 复制
+              复制
             </button>
           )}
         </div>
@@ -400,6 +398,30 @@ export function createXmlPreviewPlugin(
       render: (context: PluginContext) => (
         <XmlPreviewComponent context={context} config={config} />
       ),
+      getActions: (context: PluginContext) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        },
+        copy: () => {
+          context.bus?.emit("xml:copy", {});
+        },
+        format: () => {
+          context.bus?.emit("xml:format", {});
+        },
+      }),
       renderToolbar: (context: PluginContext) => {
         const { file } = context;
         const handleDownload = () => {

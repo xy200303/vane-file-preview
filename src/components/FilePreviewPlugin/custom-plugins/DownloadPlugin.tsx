@@ -165,6 +165,21 @@ export function createDownloadPlugin(
       // 可以处理所有文件
       canHandle: () => true,
 
+      getActions: (context) => ({
+        download: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+        save: () => {
+          const link = document.createElement("a");
+          link.href = context.file.url;
+          link.download = context.file.name;
+          link.click();
+        },
+      }),
+
       render: (context) => (
         <DownloadPreview
           autoDownload={autoDownload}

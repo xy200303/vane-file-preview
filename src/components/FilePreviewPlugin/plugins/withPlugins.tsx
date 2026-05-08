@@ -8,6 +8,8 @@ import type {
   FilePreviewCoreRef,
 } from "../core/FilePreviewCore";
 import type {
+  PluginActionHandlers,
+  PluginActions,
   FilePreviewPlugin,
   PluginContext,
   PluginManager,
@@ -22,6 +24,24 @@ export interface WithPluginsConfig {
   plugins: FilePreviewPlugin[];
   enableDebug?: boolean;
 }
+
+export interface ToolbarRenderParams {
+  context: PluginContext;
+  activePlugin: FilePreviewPlugin | null;
+  defaultToolbar: React.ReactNode | null;
+}
+
+export interface WithPluginsRuntimeProps {
+  enableDefaultToolbar?: boolean;
+  renderToolbar?: (params: ToolbarRenderParams) => React.ReactNode;
+}
+
+const triggerFileDownload = (url: string, fileName: string) => {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+};
 
 export function withPlugins(
   WrappedComponent: React.ForwardRefExoticComponent<
@@ -38,9 +58,14 @@ export function withPlugins(
 
   const WithPluginsComponent = forwardRef<
     FilePreviewCoreRef,
-    FilePreviewCoreProps
+    FilePreviewCoreProps & WithPluginsRuntimeProps
   >((props, ref) => {
-    const { file } = props;
+    const {
+      file,
+      enableDefaultToolbar = true,
+      renderToolbar,
+      ...coreProps
+    } = props;
 
     // 插件管理
     const pluginManagerRef = useRef<PluginManager>(createPluginManager());
@@ -68,6 +93,186 @@ export function withPlugins(
     const [activePlugin, setActivePlugin] = useState<FilePreviewPlugin | null>(
       null
     );
+    const activePluginRef = useRef<FilePreviewPlugin | null>(null);
+    const pluginContextRef = useRef<PluginContext | null>(null);
+
+    const actions = useMemo<PluginActions>(() => {
+      const getContext = () => pluginContextRef.current;
+      const getPlugin = () => activePluginRef.current;
+      const getActionHandlers = (): PluginActionHandlers => {
+        const plugin = getPlugin();
+        const context = getContext();
+
+        if (!plugin || !context) {
+          return {};
+        }
+
+        return plugin.hooks.getActions?.(context) ?? {};
+      };
+
+      const invoke = (actionName: string, ...args: any[]) => {
+        const context = getContext();
+        const plugin = getPlugin();
+
+        if (!context) {
+          return undefined;
+        }
+
+        const actionHandlers = getActionHandlers();
+        const customHandler = actionHandlers[actionName];
+
+        if (typeof customHandler === "function") {
+          return customHandler(...args);
+        }
+
+        switch (actionName) {
+          case "download":
+            if (plugin?.hooks.onDownload) {
+              return plugin.hooks.onDownload(context);
+            }
+            triggerFileDownload(context.file.url, context.file.name);
+            return undefined;
+          case "save":
+            return invoke("download");
+          case "zoom":
+            if (
+              plugin?.hooks.onZoom &&
+              typeof args[0] === "number" &&
+              Number.isFinite(args[0])
+            ) {
+              return plugin.hooks.onZoom(context, args[0]);
+            }
+            if (typeof args[0] === "number" && Number.isFinite(args[0])) {
+              context.bus?.emit("zoom", { scale: args[0] });
+            }
+            return undefined;
+          case "rotate": {
+            const payload = args[0];
+
+            if (plugin?.hooks.onRotate) {
+              if (typeof payload === "number") {
+                return plugin.hooks.onRotate(context, payload);
+              }
+
+              if (
+                payload &&
+                typeof payload === "object" &&
+                typeof payload.angle === "number"
+              ) {
+                return plugin.hooks.onRotate(context, payload.angle);
+              }
+            }
+
+            context.bus?.emit("rotate", payload ?? {});
+            return undefined;
+          }
+          case "reset":
+            context.bus?.emit("reset", {});
+            return undefined;
+          case "fullscreen": {
+            if (plugin?.hooks.onFullscreen) {
+              return plugin.hooks.onFullscreen(context, Boolean(args[0]));
+            }
+
+            const container = context.containerRef.current;
+            if (!container) {
+              return undefined;
+            }
+
+            const shouldEnable =
+              typeof args[0] === "boolean"
+                ? args[0]
+                : document.fullscreenElement !== container;
+
+            if (shouldEnable) {
+              return container.requestFullscreen?.();
+            }
+
+            if (document.fullscreenElement) {
+              return document.exitFullscreen?.();
+            }
+
+            return undefined;
+          }
+          default:
+            context.bus?.emit(actionName, args[0]);
+            return undefined;
+        }
+      };
+
+      return {
+        download: async () => {
+          await Promise.resolve(invoke("download"));
+        },
+        save: async () => {
+          await Promise.resolve(invoke("save"));
+        },
+        zoom: (scale) => invoke("zoom", scale),
+        zoomIn: (step) => invoke("zoomIn", step),
+        zoomOut: (step) => invoke("zoomOut", step),
+        rotate: (payload) => invoke("rotate", payload),
+        reset: () => invoke("reset"),
+        previous: () => invoke("previous"),
+        next: () => invoke("next"),
+        goTo: (index) => invoke("goTo", index),
+        fullscreen: (enabled) => invoke("fullscreen", enabled),
+        run: (actionName, ...args) => invoke(actionName, ...args),
+        has: (actionName) => {
+          const actionHandlers = getActionHandlers();
+
+          if (typeof actionHandlers[actionName] === "function") {
+            return true;
+          }
+
+          if (
+            actionName === "download" ||
+            actionName === "save" ||
+            actionName === "fullscreen"
+          ) {
+            return true;
+          }
+
+          const plugin = getPlugin();
+          if (!plugin) {
+            return false;
+          }
+
+          if (actionName === "zoom") {
+            return typeof plugin.hooks.onZoom === "function";
+          }
+
+          if (actionName === "rotate") {
+            return typeof plugin.hooks.onRotate === "function";
+          }
+
+          return false;
+        },
+        list: () => {
+          const actionNames = new Set<string>([
+            "download",
+            "save",
+            "fullscreen",
+          ]);
+          const actionHandlers = getActionHandlers();
+
+          Object.keys(actionHandlers).forEach((actionName) => {
+            if (typeof actionHandlers[actionName] === "function") {
+              actionNames.add(actionName);
+            }
+          });
+
+          const plugin = getPlugin();
+          if (plugin?.hooks.onZoom) {
+            actionNames.add("zoom");
+          }
+          if (plugin?.hooks.onRotate) {
+            actionNames.add("rotate");
+          }
+
+          return Array.from(actionNames);
+        },
+      };
+    }, []);
 
     // 注册插件
     useEffect(() => {
@@ -120,9 +325,13 @@ export function withPlugins(
         contentRef,
         bus,
         sharedData: sharedData,
+        actions,
       };
       return context;
-    }, [file, state, bus, sharedData]);
+    }, [actions, bus, file, sharedData, state]);
+
+    activePluginRef.current = activePlugin;
+    pluginContextRef.current = pluginContext;
 
     // 生命周期钩子
     useEffect(() => {
@@ -186,6 +395,29 @@ export function withPlugins(
       );
     }, [pluginContext, activePlugin, toolbarUpdateKey]);
 
+    const renderedToolbar = useMemo(() => {
+      if (renderToolbar) {
+        return renderToolbar({
+          context: pluginContext,
+          activePlugin,
+          defaultToolbar: pluginToolbars,
+        });
+      }
+
+      if (enableDefaultToolbar) {
+        return pluginToolbars;
+      }
+
+      return null;
+    }, [
+      activePlugin,
+      enableDefaultToolbar,
+      pluginContext,
+      pluginToolbars,
+      renderToolbar,
+      toolbarUpdateKey,
+    ]);
+
     // 针对 PDF 插件，禁用外层滚动，仅保留内嵌查看器的滚动
     const isPdfPlugin = activePlugin?.name === "PdfPreviewPlugin";
 
@@ -206,12 +438,13 @@ export function withPlugins(
 
     // 增强的 props
     const enhancedProps: FilePreviewCoreProps = {
-      ...props,
+      file,
+      ...coreProps,
       containerRefExternal: containerRef,
       contentRefExternal: contentRef,
       children: (
         <>
-          {pluginToolbars && (
+          {renderedToolbar && (
             <div
               style={{
                 position: "sticky",
@@ -226,7 +459,7 @@ export function withPlugins(
                 backdropFilter: "blur(8px)",
               }}
             >
-              {pluginToolbars}
+              {renderedToolbar}
             </div>
           )}
           <div
@@ -248,7 +481,7 @@ export function withPlugins(
               {pluginRenders}
             </div>
             {pluginOverlays}
-            {props.children}
+            {coreProps.children}
           </div>
         </>
       ),

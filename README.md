@@ -7,7 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.x-blue)](https://react.dev/)
 
-[在线演示](https://chinavane.netlify.app/) | [快速开始](#快速开始) | [插件列表](#插件列表) | [API 文档](#api-文档)
+[在线演示](https://chinavane.netlify.app/) | [快速开始](#快速开始) | [自定义头部指南](./docs/CUSTOM_TOOLBAR_GUIDE.md) | [插件列表](#插件列表) | [API 文档](#api-文档)
 
 ---
 
@@ -171,6 +171,39 @@ function App() {
   );
 }
 ```
+
+### 进阶：自定义头部
+
+如果你希望关闭内置工具栏，并接入自己系统里的头部样式，可以直接使用：
+
+```tsx
+<Preview
+  file={file}
+  enableDefaultToolbar={false}
+  renderToolbar={({ context, activePlugin }) => {
+    return (
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <span>{context.file.name}</span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => void context.actions.download()}>
+            下载
+          </button>
+          {activePlugin?.name === "PptxPreviewPlugin" && (
+            <>
+              <button onClick={() => context.actions.previous()}>上一页</button>
+              <button onClick={() => context.actions.next()}>下一页</button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }}
+/>
+```
+
+完整接入说明请查看：
+
+- [自定义头部接入指南](./docs/CUSTOM_TOOLBAR_GUIDE.md)
 
 ### 完整示例：多格式文件预览器
 

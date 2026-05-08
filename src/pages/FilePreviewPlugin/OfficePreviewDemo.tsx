@@ -7,6 +7,7 @@ import React, { useState, useMemo } from "react";
 import DemoPage from "./_layout/DemoPage";
 import {
   FilePreviewCore,
+  type ToolbarRenderParams,
   withPlugins,
   createMammothDocxPlugin,
   createDocxPreviewPlugin,
@@ -68,8 +69,11 @@ const officeFiles: FileInfo[] = [
 ];
 
 export default function OfficePreviewDemo() {
-  const [selectedFile, setSelectedFile] = useState<FileInfo>(officeFiles[0]);
+  const [selectedFile, setSelectedFile] = useState<FileInfo>(
+    () => officeFiles.find((file) => file.name === "答辩.pptx") ?? officeFiles[0]
+  );
   const [preferOnlineDocx, setPreferOnlineDocx] = useState<boolean>(false);
+  const [useCustomToolbar, setUseCustomToolbar] = useState<boolean>(true);
 
   // 根据当前选择的文件决定插件配置
   const Preview = useMemo(() => {
@@ -95,6 +99,156 @@ export default function OfficePreviewDemo() {
     ];
     return withPlugins(FilePreviewCore, plugins);
   }, [preferOnlineDocx, selectedFile]);
+
+  const renderCustomToolbar = ({
+    context,
+    activePlugin,
+  }: ToolbarRenderParams) => {
+    const isPptx = activePlugin?.name === "PptxPreviewPlugin";
+    const slideCount = Number(context.sharedData?.get("pptxSlideCount") ?? 0);
+    const activeSlide = Number(context.sharedData?.get("pptxActiveSlide") ?? 0);
+    const loading = Boolean(context.sharedData?.get("pptxLoading") ?? false);
+    const rendering = Boolean(
+      context.sharedData?.get("pptxRenderingSlide") ?? false
+    );
+    const isImageDeck = Boolean(
+      context.sharedData?.get("pptxIsImageDeck") ?? false
+    );
+    const imageDeckDisplayMode =
+      (context.sharedData?.get("pptxImageDeckDisplayMode") as
+        | "sharp"
+        | "fit"
+        | undefined) ?? "sharp";
+    const canNavigate = slideCount > 0 && !loading && !rendering;
+
+    const pillStyle: React.CSSProperties = {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "8px 14px",
+      minHeight: 40,
+      borderRadius: 16,
+      background: "#ffffff",
+      boxShadow: "0 10px 30px rgba(148, 163, 184, 0.18)",
+      color: "#1f2a44",
+      fontSize: 12,
+      fontWeight: 600,
+    };
+
+    const buttonStyle: React.CSSProperties = {
+      ...pillStyle,
+      border: "none",
+      cursor: "pointer",
+    };
+
+    return (
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            ...pillStyle,
+            minWidth: 0,
+            flex: "1 1 260px",
+            justifyContent: "space-between",
+          }}
+        >
+          <span
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {context.file.name}
+          </span>
+          <span style={{ color: "#64748b", fontWeight: 500 }}>
+            {activePlugin?.name ?? "Unknown"}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {isPptx && (
+            <>
+              {isImageDeck && (
+                <>
+                  <button
+                    onClick={() =>
+                      context.actions.run("setImageDeckMode", "sharp")
+                    }
+                    style={{
+                      ...buttonStyle,
+                      background:
+                        imageDeckDisplayMode === "sharp" ? "#e5ebff" : "#fff",
+                    }}
+                  >
+                    清晰优先
+                  </button>
+                  <button
+                    onClick={() =>
+                      context.actions.run("setImageDeckMode", "fit")
+                    }
+                    style={{
+                      ...buttonStyle,
+                      background:
+                        imageDeckDisplayMode === "fit" ? "#e5ebff" : "#fff",
+                    }}
+                  >
+                    适应容器
+                  </button>
+                </>
+              )}
+
+              <button
+                onClick={() => context.actions.previous()}
+                disabled={!canNavigate || activeSlide <= 0}
+                style={{
+                  ...buttonStyle,
+                  opacity: !canNavigate || activeSlide <= 0 ? 0.5 : 1,
+                  cursor:
+                    !canNavigate || activeSlide <= 0 ? "not-allowed" : "pointer",
+                }}
+              >
+                上一页
+              </button>
+              <div style={pillStyle}>
+                {slideCount > 0 ? `${activeSlide + 1} / ${slideCount}` : "-- / --"}
+              </div>
+              <button
+                onClick={() => context.actions.next()}
+                disabled={!canNavigate || activeSlide >= slideCount - 1}
+                style={{
+                  ...buttonStyle,
+                  opacity:
+                    !canNavigate || activeSlide >= slideCount - 1 ? 0.5 : 1,
+                  cursor:
+                    !canNavigate || activeSlide >= slideCount - 1
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+              >
+                下一页
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={() => void context.actions.download()}
+            style={buttonStyle}
+          >
+            下载
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <DemoPage
@@ -181,6 +335,39 @@ export default function OfficePreviewDemo() {
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
+          <div
+            style={{
+              padding: 8,
+              borderBottom: "1px solid #eee",
+              background: "#f8fafc",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#475569" }}>
+              当前演示：{useCustomToolbar ? "自定义头部" : "内置头部"}
+            </div>
+            <label
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12,
+                color: "#475569",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={useCustomToolbar}
+                onChange={(e) => setUseCustomToolbar(e.target.checked)}
+              />
+              启用自定义头部
+            </label>
+          </div>
+
           {/* 简易切换控件 - 只在没有明确指定预览模式的 DOCX 文件时显示 */}
           {selectedFile.extension.toLowerCase() === ".docx" &&
             !selectedFile.previewMode && (
@@ -222,7 +409,11 @@ export default function OfficePreviewDemo() {
                     })`}
               </div>
             )}
-          <Preview file={selectedFile} />
+          <Preview
+            file={selectedFile}
+            enableDefaultToolbar={!useCustomToolbar}
+            renderToolbar={useCustomToolbar ? renderCustomToolbar : undefined}
+          />
         </div>
       </div>
     </DemoPage>
